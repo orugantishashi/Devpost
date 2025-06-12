@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyBuddy - Pomodoro Timer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      text-align: center;
+      padding: 40px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    h1 {
+      color: #2e7d32;
+    }
+    #timer {
+      font-size: 48px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      background-color: #2e7d32;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #quote {
+      margin-top: 20px;
+      font-style: italic;
+      color: #555;
+    }
+    #session-count {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    .dark-mode {
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+    .dark-mode button {
+      background-color: #4caf50;
+    }
+    .dark-mode #quote {
+      color: #ccc;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      margin: 15px auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    #task-display {
+      font-weight: bold;
+      margin-top: 10px;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌿 StudyBuddy</h1>
+  <p>Your Pomodoro Productivity Timer</p>
+  
+  <input type="text" id="task-input" placeholder="✏️ Enter your task here..." oninput="updateTask()">
+  <div id="task-display"></div>
+
+  <div id="timer">25:00</div>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="resetTimer()">Reset</button>
+  <button onclick="toggleDarkMode()">🌓 Toggle Dark Mode</button>
+  
+  <p>🎯 Sessions Completed Today: <span id="session-count">0</span></p>
+  <div id="quote"></div>
+
+  <!-- Sound Alert -->
+  <audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
+  <script>
+    let time = 25 * 60;
+    let timer;
+    let running = false;
+    let isWorkSession = true;
+    let completedSessions = 0;
+
+    const quotes = [
+      "Start where you are. Use what you have. Do what you can.",
+      "Small progress is still progress.",
+      "You don't have to be great to start, but you have to start to be great.",
+      "Discipline is the bridge between goals and accomplishment.",
+      "The secret to getting ahead is getting started.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Success doesn’t come from what you do occasionally, it comes from what you do consistently.",
+      "Your future is created by what you do today, not tomorrow.",
+      "Do something today that your future self will thank you for.",
+      "It always seems impossible until it’s done.",
+      "Don’t watch the clock; do what it does. Keep going.",
+      "Focus on being productive instead of busy.",
+      "Dream big. Start small. Act now.",
+      "Winners are not afraid of losing. But losers are.",
+      "You miss 100% of the shots you don't take.",
+      "The way to get started is to quit talking and begin doing."
+    ];
+
+    function updateDisplay() {
+      const minutes = Math.floor(time / 60).toString().padStart(2, '0');
+      const seconds = (time % 60).toString().padStart(2, '0');
+      document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (!running) {
+        running = true;
+        showQuote();
+        timer = setInterval(() => {
+          time--;
+          updateDisplay();
+          if (time <= 0) {
+            clearInterval(timer);
+            running = false;
+            document.getElementById("alarm-sound").play();
+
+            if (isWorkSession) {
+              completedSessions++;
+              updateSessionCount();
+              alert("Work session done! Time for a 5-min break 🧘");
+              time = 5 * 60;
+            } else {
+              alert("Break over! Back to work 💻");
+              time = 25 * 60;
+            }
+
+            isWorkSession = !isWorkSession;
+            updateDisplay();
+            startTimer(); // auto-start next cycle
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      running = false;
+      time = isWorkSession ? 25 * 60 : 5 * 60;
+      updateDisplay();
+    }
+
+    function showQuote() {
+      const random = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById("quote").textContent = `"${random}"`;
+    }
+
+    function updateSessionCount() {
+      document.getElementById("session-count").textContent = completedSessions;
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function updateTask() {
+      const task = document.getElementById("task-input").value;
+      document.getElementById("task-display").textContent = task ? `🔔 Current Task: ${task}` : '';
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
